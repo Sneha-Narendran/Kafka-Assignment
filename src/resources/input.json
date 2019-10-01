@@ -1,0 +1,29 @@
+{
+  "deviceList": [
+    {
+      "device_id": "fgh789",
+      "status": "Active",
+      "timestamp": ""
+    },
+    {
+      "device_id": "ijk135",
+      "status": "Non-Active",
+      "timestamp": ""
+    },
+    {
+      "device_id": "lmn246",
+      "status": "Non-Active",
+      "timestamp": ""
+    },
+    {
+      "device_id": "opq357",
+      "status": "Active",
+      "timestamp": ""
+    },
+    {
+      "device_id": "rst468",
+      "status": "Non-Active",
+      "timestamp": ""
+    }
+  ]
+}
