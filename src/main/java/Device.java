@@ -8,6 +8,15 @@ public class Device {
     long time = date.getTime();
     Timestamp timestamp = new Timestamp(time);
     private String deviceId;
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
     private String status;
 
     public String getDeviceId() {
@@ -18,16 +27,9 @@ public class Device {
         this.deviceId = deviceId;
     }
 
-    public String getStatus() {
-        return status;
-    }
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getTimeStamp() {
-        return timestamp.toString();
     }
 
     @Override
@@ -35,7 +37,10 @@ public class Device {
         return "{\n" +
                 "    \"device_id\":" + "\"" + deviceId + "\"" + ",\n" +
                 "    \"status\":" + "\"" + status + "\"" + ",\n" +
+
                 "    \"timestamp\": " + "\"" + timestamp + "\"" + "\n}";
 
 
-}}
+    }
+}
+

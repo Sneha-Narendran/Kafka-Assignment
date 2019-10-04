@@ -1,13 +1,13 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.TopicPartition;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
+
 
 public class StreamConsumer {
 
@@ -27,30 +27,26 @@ public class StreamConsumer {
         return properties;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String topic = "deviceTopic";
-        TopicPartition topicName = new TopicPartition(topic, 5);
         StreamConsumer streamConsumer = new StreamConsumer();
-        streamConsumer.receivedMessages(topicName);
+        streamConsumer.receivedMessages(topic);
     }
 
-    public void receivedMessages(TopicPartition topicName) {
-        if (topicName.topic().length() == 0)
+    public void receivedMessages(String topicName) {
+        if (topicName.length() == 0)
             return;
         else {
             try {
-                consumer.subscribe(Arrays.asList(topicName.topic()));
+                consumer.subscribe(Arrays.asList(topicName));
                 ConsumerRecords<String, String> records = consumer.poll(1000);
                 for (ConsumerRecord<String, String> record : records) {
                     System.out.println("Record Partition: " + record.partition() + " Record Offset:  " + record.offset() + " Record Key:  " + record.key());
                     System.out.println(record.value());
-                    JSONParser parser = new JSONParser();
-
-                    JSONObject jsonObject = (JSONObject) parser.parse(record.value());
-                    System.out.println(jsonObject);
+                    Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+                    Device device = gson.fromJson(record.value(), Device.class);
+                    System.out.println(device.getDeviceId());
                 }
-            } catch (ParseException e) {
-                e.printStackTrace();
             } finally {
                 consumer.close();
 

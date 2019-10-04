@@ -26,33 +26,33 @@ public class KafkaConsumerTest {
     }
 
     @Test
-    public void shouldNotReceiveMessagesIfNoTopicIsMentioned() throws ParseException, InterruptedException, IOException {
+    public void shouldNotReceiveMessagesIfNoTopicIsMentioned() throws IOException {
         String topic="";
-        TopicPartition topicName = new TopicPartition(topic, 5);
-        streamProducer.sendMessages(topicName);
-        streamConsumer.receivedMessages(topicName);
 
-        verify(kafkaConsumer, never()).subscribe(Arrays.asList(topicName));
+
+        streamConsumer.receivedMessages(topic);
+
+        verify(kafkaConsumer, never()).subscribe(Arrays.asList(topic));
     }
 
     @Test
-    public void shouldReceiveMessagesIfTopicIsMentioned() throws ParseException, InterruptedException, IOException {
+    public void shouldReceiveMessagesIfTopicIsMentioned() throws IOException {
         String topic="deviceTopic";
         TopicPartition topicName = new TopicPartition(topic, 5);
         streamProducer.sendMessages(topicName);
-        streamConsumer.receivedMessages(topicName);
+        streamConsumer.receivedMessages(topic);
 
-        verify(kafkaConsumer, atLeastOnce()).subscribe(Arrays.asList(topicName));
+        verify(kafkaConsumer, atLeastOnce()).subscribe(Arrays.asList(topic));
     }
 
     @Test
-    public void shouldReceiveMessagesIfMultiplePartitionsAreMentioned() throws ParseException, InterruptedException, IOException {
+    public void shouldReceiveMessagesIfMultiplePartitionsAreMentioned() throws IOException {
         String topic="deviceTopic";
         TopicPartition topicName = new TopicPartition(topic, 5);
         streamProducer.sendMessages(topicName);
-        streamConsumer.receivedMessages(topicName);
+        streamConsumer.receivedMessages(topic);
 
-        verify(kafkaConsumer, atLeastOnce()).subscribe(Arrays.asList(topicName));
+        verify(kafkaConsumer, atLeastOnce()).subscribe(Arrays.asList(topic));
     }
 
 }

@@ -2,23 +2,13 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.Properties;
 
 public class StreamProducer {
 
-    private Producer producer = new KafkaProducer<>(StreamProducer.setPropertiesOfProducer());
+    private static Producer producer = new KafkaProducer<>(StreamProducer.setPropertiesOfProducer());
 
     public static Properties setPropertiesOfProducer() {
         Properties properties = new Properties();
@@ -28,85 +18,69 @@ public class StreamProducer {
         return properties;
     }
 
-public  static  void run() throws InterruptedException, IOException {
-    String[] cmd = new String[]{"/bin/bash", "cd ", "/Applications/kafka_2.12-2.3.0/", "bin/zookeeper-server-start.sh config/zookeeper.properties", "/bin/kafka-server-start.sh config/server.properties"};
-    Runtime run = Runtime.getRuntime();
-    Process pr = null;
-    try {
-        pr = run.exec(cmd);
-    } catch (IOException e) {
-        e.printStackTrace();
+    public static ArrayList<Device> setDeviceDetails() {
+        Device device1 = new Device();
+        device1.setDeviceId("101");
+        device1.setStatus("Active");
+        Device device2 = new Device();
+        device2.setDeviceId("102");
+        device2.setStatus("Active");
+        Device device3 = new Device();
+        device3.setDeviceId("103");
+        device3.setStatus("Non-Active");
+        Device device4 = new Device();
+        device4.setDeviceId("104");
+        device4.setStatus("Active");
+        Device device5 = new Device();
+        device5.setDeviceId("105");
+        device5.setStatus("Non-Active");
+
+        ArrayList<Device> deviceArrayList = new ArrayList<>();
+        deviceArrayList.add(device1);
+        deviceArrayList.add(device2);
+        deviceArrayList.add(device3);
+        deviceArrayList.add(device4);
+        deviceArrayList.add(device5);
+        return deviceArrayList;
+
+
     }
 
-    pr.waitFor();
-
-    BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-
-
-    String line = "";
-    while ((line = buf.readLine()) != null) {
-        System.out.println(line);
-
-    }
-}
-    public static void main(String[] args) throws IOException, InterruptedException, ParseException {
+    public static void main(String[] args) {
 
         String topic = "deviceTopic";
         TopicPartition topicName = new TopicPartition(topic, 5);
 
-        StreamProducer streamProducer = new StreamProducer();
-        streamProducer.sendMessages(topicName);
 
+        sendMessages(topicName);
     }
 
+    public static void sendMessages(TopicPartition topicName) {
 
-    public void sendMessages(TopicPartition topicName) throws IOException, ParseException, InterruptedException {
-        run();
+
         if (topicName.topic().length() == 0) {
+            System.out.println("No Topic Assigned.");
             return;
         }
-        JSONParser parser = new JSONParser();
-        Object device = parser.parse(new FileReader("src/resources/input.json"));
-        JSONObject jsonObject = (JSONObject) device;
-
-        JSONArray deviceList = (JSONArray) jsonObject.get("deviceList");
-
-
         try {
-            Iterator iterator = deviceList.iterator();
-            while (iterator.hasNext()) {
-                Object it = iterator.next();
+            ArrayList<Device> deviceArrayList = setDeviceDetails();
 
-                JSONObject data = (JSONObject) it;
+            for (int i = 0; i < deviceArrayList.size(); i++) {
 
-                //Putting TimeStamp dynamically into JSON
-                Date date = new Date();
-                long time = date.getTime();
-                Timestamp timestamp = new Timestamp(time);
-                String deviceTimestamp = timestamp.toString();
-                data.put("timestamp", deviceTimestamp);
-
-                //Assigning key and value as a String
-                String device_id = (String) data.get("device_id");
-                String status = (String) data.get("status");
-                String value = "{\n" +
-                        "    \"device_id\":" + "\"" + device_id + "\"" + ",\n" +
-                        "    \"status\":" + "\"" + status + "\"" + ",\n" +
-                        "    \"timestamp\": " + "\"" + deviceTimestamp + "\"" + "\n}";
-
-
-                String key = (String) data.get("device_id");
-
+                String key = deviceArrayList.get(i).getDeviceId();
+                String value = deviceArrayList.get(i).toString();
+                System.out.println(value);
                 producer.send(new ProducerRecord<>(topicName.topic(), key, value));
-                System.out.println("Producer sent successfully!!!");
+                System.out.println("Producer sent successfully");
             }
-
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
-            producer.flush();
             producer.close();
         }
-
-
     }
+
 }
+
+
 
